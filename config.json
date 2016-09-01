@@ -6,7 +6,23 @@
     { "owner": "kubernetes", "repo": "kubernetes" },
     { "owner": "projectatomic", "repo": "atomic" },
     { "owner": "projectatomic", "repo": "rpm-ostree" },
-    { "owner": "openshift", "repo": "origin" }
+    { "owner": "projectatomic", "repo": "docker" },
+    { "owner": "projectatomic", "repo": "skopeo" },
+    { "owner": "projectatomic", "repo": "atomic-reactor" },
+    { "owner": "projectatomic", "repo": "oci-register-machine" },
+    { "owner": "projectatomic", "repo": "runc" },
+    { "owner": "projectatomic", "repo": "bubblewrap" },
+    { "owner": "openshift", "repo": "origin" },
+    { "owner": "cockpit-project", "repo": "cockpit" },
+    { "owner": "opencontainers", "repo": "image-spec" },
+    { "owner": "opencontainers", "repo": "ocitools" },
+    { "owner": "opencontainers", "repo": "runc" },
+    { "owner": "ansible", "repo": "ansible" },
+    { "owner": "ceph", "repo": "ceph" },
+    { "owner": "gluster", "repo": "glusterfs" },
+    { "owner": "openstack", "repo": "horizon" },
+    { "owner": "redhat-openstack", "repo": "horizon" },
+    { "owner": "gpg", "repo": "gnupg" }
   ],
   "cache_file": "tmp/datenbank.nt"
 }

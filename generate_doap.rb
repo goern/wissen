@@ -99,7 +99,11 @@ client = Octokit::Client.new(:netrc => true)
 root = client.root
 
 # define some vocabularies we use later on
-DOAP = RDF::Vocabulary.new("http://usefulinc.com/ns/doap#")
+DOAP = RDF::Vocabulary.new('http://usefulinc.com/ns/doap#')
+XKOS = RDF::Vocabulary.new('http://rdf-vocabulary.ddialliance.org/xkos#')
+SKOS = RDF::Vocabulary.new('http://www.w3.org/2004/02/skos/core#')
+GR = RDF::Vocabulary.new('http://purl.org/goodrelations/v1#')
+
 
 # and initialize and empty graph, or repository
 graph = nil
@@ -139,15 +143,44 @@ else
     graph << [RDF::URI(prj.data[:url]), DOAP['homepage'], RDF::Resource(prj.data[:homepage])] unless prj.data[:homepage].to_s == ''
     graph << [RDF::URI(prj.data[:url]), DOAP['description'], prj.data[:description]]
 
-    # created shortdesc category license repository
+    # TODO created shortdesc category license repository
+
+    # TODO evaluate forks so that we can discover :sameAs relations
+
+    # This is the part where our knowledge has to be added
+    graph << [RDF::URI('https://api.github.com/repos/kubernetes/kubernetes'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/docker/docker')]
+
+
+    graph << [RDF::URI('https://api.github.com/repos/openshift/origin'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/kubernetes/kubernetes')]
+    graph << [RDF::URI('https://api.github.com/repos/openshift/origin'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/coreos/etcd')]
+
+    # lets say what Red Hat OpenShift is
+    graph << [RDF::URI('https://www.openshift.com/'), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DOAP.Project]
+    graph << [RDF::URI('https://www.openshift.com/'), DOAP['name'], 'Red Hat OpenShift Container Platform']
+    graph << [RDF::URI('https://www.openshift.com/'), DOAP['programming-language'], 'Go']
+    graph << [RDF::URI('https://www.openshift.com/'), DOAP['homepage'], RDF::Resource('https://www.openshift.com/')]
+    graph << [RDF::URI('https://www.openshift.com/'), DOAP['description'], 'OpenShift is Red Hat\'s Platform-as-a-Service (PaaS) that allows developers to quickly develop, host, and scale applications in a cloud environment. With OpenShift you have a choice of offerings, including online, on-premise, and open source project options.']
+    graph << [RDF::URI('https://www.openshift.com/'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/openshift/origin')]
+
+    graph << [RDF::URI('https://access.redhat.com/products/red-hat-enterprise-linux/'), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), GR['SomeItems']]
+    graph << [RDF::URI('https://access.redhat.com/products/red-hat-enterprise-linux/'), GR['name'], 'Red Hat Enterprise Linux']
+    graph << [RDF::URI('https://access.redhat.com/products/red-hat-enterprise-linux/'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/docker/docker')]
+
+    graph << [RDF::URI('https://access.redhat.com/products/openshift-enterprise-red-hat/'), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), GR['SomeItems']]
+    graph << [RDF::URI('https://access.redhat.com/products/openshift-enterprise-red-hat/'), GR['name'], 'OpenShift Enterprise by Red Hat']
+
+    graph << [RDF::URI('https://access.redhat.com/products/openshift-enterprise-red-hat/'), XKOS['hasPart'], RDF::URI('https://access.redhat.com/products/red-hat-enterprise-linux/')]
+    graph << [RDF::URI('https://access.redhat.com/products/openshift-enterprise-red-hat/'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/openshift/origin')]
+
 
   end
 
 end
 
-puts graph.dump(:ntriples) if options[:verbose]
 
 # lets dump all the data we have...
+puts graph.dump(:ntriples) if options[:verbose]
+
 RDF::Writer.open(CACHE_FILENAME) do |writer|
   writer << graph
 end
@@ -156,6 +189,14 @@ end
 sse = SPARQL.parse("PREFIX doap: <http://usefulinc.com/ns/doap#> SELECT * WHERE { ?s doap:programming-language 'Go' }")
 graph.query(sse) do |solutions|
   solutions.each do |solution|
+    logger.debug "solution #{solution}"
+
+    # lets see if the project is on a github repo
+    if !solution[1].path.match('/repos/')
+      logger.info "#{solution[1].path} is not on github, so we skip gathering data from there..."
+      break
+    end
+
     # extract the repo from all results/solutions
     repo = solution[1].path.split('/')[2..3].join('/') # FIXME this looks way to funny!
 
@@ -178,6 +219,5 @@ graph.query(sse) do |solutions|
     end
 
   end
-
 
 end
