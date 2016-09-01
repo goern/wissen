@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'octokit', '~> 4.3'
+gem 'faraday-http-cache'
 gem 'netrc'
 
 gem 'rdf', '~> 2.1'

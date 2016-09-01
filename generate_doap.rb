@@ -5,6 +5,7 @@ require 'logger'
 require 'optparse'
 
 require 'octokit'
+require 'faraday/http_cache'
 
 require 'rdf'
 require 'rdf/ntriples'
@@ -40,12 +41,16 @@ OptionParser.new do |opts|
   opts.on("-n", "--no-cache", "Do not use any cached data") do |n|
     options[:no_cache] = n
   end
+
+  opts.on("-f", "--http-cache", "Use a http caching layer") do |f|
+    options[:http_cache] = f
+  end
 end.parse!
 
 puts options.inspect if options[:verbose]
 
 # reconfigure faraday to do some logging, if we ask for it... --debug
-if options[:debug]
+if options[:debug] and options[:http_cache].nil?
   stack = Faraday::RackBuilder.new do |builder|
     builder.response :logger
     builder.use Octokit::Response::RaiseError
@@ -55,7 +60,16 @@ if options[:debug]
   Octokit.middleware = stack
 end
 
-# TODO implement faraday caching https://github.com/octokit/octokit.rb#caching
+if options[:http_cache] and options[:debug].nil?
+  stack = Faraday::RackBuilder.new do |builder|
+    builder.use Faraday::HttpCache, serializer: Marshal, shared_cache: false
+    builder.use Octokit::Response::RaiseError
+    builder.adapter Faraday.default_adapter
+  end
+
+  Octokit.middleware = stack
+end
+
 client = Octokit::Client.new(:netrc => true)
 root = client.root
 
@@ -108,7 +122,7 @@ end
 
 puts graph.dump(:ntriples) if options[:verbose]
 
-# lets dump all the data we got...
+# lets dump all the data we have...
 RDF::Writer.open(CACHE_FILENAME) do |writer|
   writer << graph
 end
