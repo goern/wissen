@@ -1,8 +1,11 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
 
 require 'tmpdir'
 require 'logger'
 require 'optparse'
+
+require 'json'
 
 require 'octokit'
 require 'faraday/http_cache'
@@ -12,42 +15,64 @@ require 'rdf/ntriples'
 require 'rdf/nquads'
 require 'sparql'
 
-upstream_projects = [
-  { owner: "golang", repo: "go" },
-  { owner: "docker", repo: "docker" },
-  { owner: "coreos", repo: "etcd" },
-  { owner: "kubernetes", repo: "kubernetes" },
-  { owner: "projectatomic", repo: "atomic" },
-  { owner: "projectatomic", repo: "rpm-ostree" },
-  { owner: "openshift", repo: "origin" }
-]
-
-# TODO put this in tmpdir
-CACHE_FILENAME = 'tmp/datenbank.nt'
+Version = '1.0.0'
 
 options = {}
 
-OptionParser.new do |opts|
-  opts.banner = "Usage: #{$0} [options]"
+OptionParser.new do |parser|
+  parser.banner = "Usage: #{$0} [options]"
+  parser.separator ""
+  parser.separator "Specific options:"
 
-  opts.on("-d", "--debug", "Write some debugging info to STDOUT") do |d|
-    options[:debug] = d
+  parser.on("-d", "--debug", "Write some debugging info to STDOUT") do |d|
+    options[:debug] = true
   end
 
-  opts.on("-v", "--verbose", "Run verbosely") do |v|
-    options[:verbose] = v
+  parser.on("-n", "--no-cache", "Do not use any cached data") do |n|
+    options[:no_cache] = true
   end
 
-  opts.on("-n", "--no-cache", "Do not use any cached data") do |n|
-    options[:no_cache] = n
+  parser.on("-f", "--http-cache", "Use a http caching layer") do |f|
+    options[:http_cache] = true
   end
 
-  opts.on("-f", "--http-cache", "Use a http caching layer") do |f|
-    options[:http_cache] = f
+  parser.on("-c", "--config FILENAME", "Set config file name to FILENAME") do |config_file|
+    options[:config_file] = config_file
+  end
+
+  parser.separator ""
+  parser.separator "Common options:"
+
+  parser.on_tail("-v", "--verbose", "Run verbosely") do |v|
+    options[:verbose] = true
+  end
+
+  parser.on_tail("-h", "--help", "Show this message") do
+    puts parser
+    exit
+  end
+
+  parser.on_tail("--version", "Show version") do
+    puts Version
+    exit
   end
 end.parse!
 
 puts options.inspect if options[:verbose]
+
+# check which config file to read and read it...
+if options[:config_file].to_s == ''
+  config_file = File.read('config.json')
+else
+  config_file = File.read(options[:config_file].to_s)
+end
+config_hash = JSON.parse(config_file)
+
+# TODO overwrite other options from config file...
+upstream_projects = config_hash['projects']
+
+# TODO put this in tmpdir
+CACHE_FILENAME = config_hash['cache_file'] || 'tmp/datenbank.nt'
 
 # reconfigure faraday to do some logging, if we ask for it... --debug
 if options[:debug] and options[:http_cache].nil?

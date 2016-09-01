@@ -1,0 +1,12 @@
+{
+  "projects": [
+    { "owner": "golang", "repo": "go" },
+    { "owner": "docker", "repo": "docker" },
+    { "owner": "coreos", "repo": "etcd" },
+    { "owner": "kubernetes", "repo": "kubernetes" },
+    { "owner": "projectatomic", "repo": "atomic" },
+    { "owner": "projectatomic", "repo": "rpm-ostree" },
+    { "owner": "openshift", "repo": "origin" }
+  ],
+  "cache_file": "tmp/datenbank.nt"
+}
