@@ -23,7 +23,7 @@ upstream_projects = [
 ]
 
 # TODO put this in tmpdir
-CACHE_FILENAME = 'tmp/database.nt'
+CACHE_FILENAME = 'tmp/datenbank.nt'
 
 options = {}
 
@@ -136,12 +136,20 @@ graph.query(sse) do |solutions|
 
     # get Godeps.json
     begin
-      deps = client.search_code("Godeps.json+repo:#{repo}+in:path+path:Godeps")
+      deps = client.search_code "Godeps.json repo:#{repo} in:path path:Godeps", :sort  => 'indexed', :order => 'desc'
 
-      puts deps.inspect
+      # if we have any Godeps.json within that repository
+      if deps[:total_count] > 0
+        # the highest scored 'may' be the one we want, the root one, the project wide
+        puts "#{repo} has #{deps.items[0].path}"
+
+        # TODO now lets see if repo depends on something we have in our knowledge base
+      else
+        puts "uhhh, #{repo} seems to have no Godeps.json"
+      end
 
     rescue Octokit::UnprocessableEntity
-      puts "uhhh, #{repo} seems to have no Godeps.json"
+      puts "Octokit cant process #{repo}"
     end
 
   end
