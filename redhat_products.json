@@ -1,0 +1,34 @@
+[
+  {
+    "name": "OpenShift Enterprise by Red Hat",
+    "uri": "https://access.redhat.com/products/openshift-enterprise-red-hat/"
+  },
+  {
+    "name": "Red Hat OpenStack Platform",
+    "uri": "https://access.redhat.com/products/red-hat-openstack-platform/"
+  },
+  {
+    "name": "Red Hat Enterprise Linux",
+    "uri": "https://access.redhat.com/products/red-hat-enterprise-linux/"
+  },
+  {
+    "name": "Red Hat Satellite",
+    "uri": "https://access.redhat.com/products/red-hat-satellite/"
+  },
+  {
+    "name": "Red Hat CloudForms",
+    "uri": "https://access.redhat.com/products/red-hat-cloudforms/"
+  },
+  {
+    "name": "Red Hat Gluster Storage",
+    "uri": "https://access.redhat.com/products/red-hat-storage/"
+  },
+  {
+    "name": "Red Hat Ceph Storage",
+    "uri": "https://access.redhat.com/products/red-hat-ceph-storage/"
+  },
+  {
+    "name": "Red Hat JBoss Enterprise Application Platform",
+    "uri": "https://access.redhat.com/products/red-hat-jboss-enterprise-application-platform/"
+  }
+]

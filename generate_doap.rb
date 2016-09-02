@@ -58,7 +58,7 @@ OptionParser.new do |parser|
   end
 end.parse!
 
-puts options.inspect if options[:verbose]
+puts options.inspect if options[:debug]
 
 # check which config file to read and read it...
 if options[:config_file].to_s == ''
@@ -103,7 +103,7 @@ DOAP = RDF::Vocabulary.new('http://usefulinc.com/ns/doap#')
 XKOS = RDF::Vocabulary.new('http://rdf-vocabulary.ddialliance.org/xkos#')
 SKOS = RDF::Vocabulary.new('http://www.w3.org/2004/02/skos/core#')
 GR = RDF::Vocabulary.new('http://purl.org/goodrelations/v1#')
-
+SO = RDF::Vocabulary.new('http://schema.org/version/3.1/')
 
 # and initialize and empty graph, or repository
 graph = nil
@@ -138,10 +138,12 @@ else
 
     # and put their generated DOAP in the graph
     graph << [RDF::URI(prj.data[:url]), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DOAP.Project]
+    graph << [RDF::URI(prj.data[:url]), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), SO['CreativeWork']]
     graph << [RDF::URI(prj.data[:url]), DOAP['name'], prj.data[:name]]
     graph << [RDF::URI(prj.data[:url]), DOAP['programming-language'], prj.data[:language]]
     graph << [RDF::URI(prj.data[:url]), DOAP['homepage'], RDF::Resource(prj.data[:homepage])] unless prj.data[:homepage].to_s == ''
     graph << [RDF::URI(prj.data[:url]), DOAP['description'], prj.data[:description]]
+    graph << [RDF::URI(prj.data[:url]), SO['sponsor'], RDF::URI(project['sponsor'])]
 
     # TODO created shortdesc category license repository
 
@@ -149,7 +151,6 @@ else
 
     # This is the part where our knowledge has to be added
     graph << [RDF::URI('https://api.github.com/repos/kubernetes/kubernetes'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/docker/docker')]
-
 
     graph << [RDF::URI('https://api.github.com/repos/openshift/origin'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/kubernetes/kubernetes')]
     graph << [RDF::URI('https://api.github.com/repos/openshift/origin'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/coreos/etcd')]
@@ -162,21 +163,15 @@ else
     graph << [RDF::URI('https://www.openshift.com/'), DOAP['description'], 'OpenShift is Red Hat\'s Platform-as-a-Service (PaaS) that allows developers to quickly develop, host, and scale applications in a cloud environment. With OpenShift you have a choice of offerings, including online, on-premise, and open source project options.']
     graph << [RDF::URI('https://www.openshift.com/'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/openshift/origin')]
 
-    graph << [RDF::URI('https://access.redhat.com/products/red-hat-enterprise-linux/'), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), GR['SomeItems']]
-    graph << [RDF::URI('https://access.redhat.com/products/red-hat-enterprise-linux/'), GR['name'], 'Red Hat Enterprise Linux']
-    graph << [RDF::URI('https://access.redhat.com/products/red-hat-enterprise-linux/'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/docker/docker')]
-
-    graph << [RDF::URI('https://access.redhat.com/products/openshift-enterprise-red-hat/'), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), GR['SomeItems']]
-    graph << [RDF::URI('https://access.redhat.com/products/openshift-enterprise-red-hat/'), GR['name'], 'OpenShift Enterprise by Red Hat']
-
-    graph << [RDF::URI('https://access.redhat.com/products/openshift-enterprise-red-hat/'), XKOS['hasPart'], RDF::URI('https://access.redhat.com/products/red-hat-enterprise-linux/')]
-    graph << [RDF::URI('https://access.redhat.com/products/openshift-enterprise-red-hat/'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/openshift/origin')]
-
-
   end
 
 end
 
+# now we create all the Sponsoring Organizations
+upstream_projects.each do |project|
+  graph << [RDF::URI(project['sponsor']), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), SO['Organization']]
+
+end
 
 # lets dump all the data we have...
 puts graph.dump(:ntriples) if options[:verbose]
