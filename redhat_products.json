@@ -1,34 +1,67 @@
 [
   {
     "name": "OpenShift Enterprise by Red Hat",
-    "uri": "https://access.redhat.com/products/openshift-enterprise-red-hat/"
+    "uri": "https://access.redhat.com/products/openshift-enterprise-red-hat/",
+    "category": "Cloud Computing"
   },
   {
     "name": "Red Hat OpenStack Platform",
-    "uri": "https://access.redhat.com/products/red-hat-openstack-platform/"
+    "uri": "https://access.redhat.com/products/red-hat-openstack-platform/",
+    "category": "Cloud Computing"
   },
   {
     "name": "Red Hat Enterprise Linux",
-    "uri": "https://access.redhat.com/products/red-hat-enterprise-linux/"
+    "uri": "https://access.redhat.com/products/red-hat-enterprise-linux/",
+    "category": "Infrastructure and Management"
   },
   {
     "name": "Red Hat Satellite",
-    "uri": "https://access.redhat.com/products/red-hat-satellite/"
+    "uri": "https://access.redhat.com/products/red-hat-satellite/",
+    "category": "Infrastructure and Management"
   },
   {
     "name": "Red Hat CloudForms",
-    "uri": "https://access.redhat.com/products/red-hat-cloudforms/"
+    "uri": "https://access.redhat.com/products/red-hat-cloudforms/",
+    "category": "Cloud Computing"
   },
   {
     "name": "Red Hat Gluster Storage",
-    "uri": "https://access.redhat.com/products/red-hat-storage/"
+    "uri": "https://access.redhat.com/products/red-hat-storage/",
+    "category": "Infrastructure and Management"
   },
   {
     "name": "Red Hat Ceph Storage",
-    "uri": "https://access.redhat.com/products/red-hat-ceph-storage/"
+    "uri": "https://access.redhat.com/products/red-hat-ceph-storage/",
+    "category": "Infrastructure and Management"
   },
   {
     "name": "Red Hat JBoss Enterprise Application Platform",
-    "uri": "https://access.redhat.com/products/red-hat-jboss-enterprise-application-platform/"
+    "uri": "https://access.redhat.com/products/red-hat-jboss-enterprise-application-platform/",
+    "category": "JBoss Development and Management"
+  },
+  {
+    "name": "Red Hat Developer Toolset",
+    "uri": "https://access.redhat.com/products/Red_Hat_Enterprise_Linux/Developer#dev-page=6",
+    "category": "JBoss Development and Management"
+  },
+  {
+    "name": "Red Hat Software Collections",
+    "uri": "https://access.redhat.com/products/Red_Hat_Enterprise_Linux/Developer#dev-page=5",
+    "category": "JBoss Development and Management"
+  },
+  {
+    "name": "Red Hat Mobile Application Platform",
+    "uri": "https://access.redhat.com/products/red-hat-mobile-application-platform/",
+    "category": "Mobile"
+  },
+  {
+    "name": "Red Hat JBoss Fuse",
+    "uri": "https://access.redhat.com/products/red-hat-jboss-fuse/",
+    "category": "Integration and Automation"
+  },
+  {
+    "name": "Red Hat Single Sign-On",
+    "uri": "https://access.redhat.com/products/red-hat-single-sign-on",
+    "category": "Integration and Automation"
   }
 ]

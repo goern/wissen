@@ -78,6 +78,8 @@ end
 
 logger.debug options.inspect
 
+# TODO turn https://www.redhat.com/en/technologies/all-products into a machine readable form
+
 if File.exists?(CACHE_FILENAME)
   graph = RDF::Repository.load(CACHE_FILENAME)
 
@@ -99,6 +101,7 @@ if File.exists?(CACHE_FILENAME)
       graph << [RDF::URI(product['uri']), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), SO['SoftwareApplication']]
       graph << [RDF::URI(product['uri']), SO['name'], product['name']]
       graph << [RDF::URI(product['uri']), SO['manufacturer'], RDF::URI('https://www.redhat.com/')]
+      graph << [RDF::URI(product['uri']), SO['applicationCategory'], product['category']]
 
     end
 
@@ -109,6 +112,10 @@ if File.exists?(CACHE_FILENAME)
 
 end
 
+graph << [RDF::URI('https://access.redhat.com/products/openshift-enterprise-red-hat/'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/openshift/origin')]
+graph << [RDF::URI('https://access.redhat.com/products/openshift-enterprise-red-hat/'), XKOS['hasPart'], RDF::URI('https://access.redhat.com/products/red-hat-enterprise-linux/')]
+
+graph << [RDF::URI('https://access.redhat.com/products/red-hat-enterprise-linux/'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/projectatomic/docker')]
 
 # lets dump all the data we have...
 puts graph.dump(:ntriples) if options[:verbose]
