@@ -5,6 +5,8 @@ require 'tmpdir'
 require 'logger'
 require 'optparse'
 
+require 'erb'
+
 require 'json'
 
 require 'rdf'
@@ -98,12 +100,18 @@ WHERE {
   }
 }
 """)
-graph.query(sse) do |solutions|
-  puts "## [#{solutions[:name]}](#{solutions[:project]})"
+
+graph.query(sse) do |projects|
+  puts "## [#{projects[:name]}](#{projects[:project]})"
   puts
-  puts "#{solutions[:description]}"
-  puts solutions[:part]
-  puts solutions[:partName]
+  puts "#{projects[:description]}"
+
+  if projects[:part].to_s != ''
+    puts "\nThis project is also using:\n"
+    puts " * [#{projects[:partName]}](#{projects[:part]})"
+    puts
+  end
+
   puts
 
 end
