@@ -131,43 +131,51 @@ else
   upstream_projects.each do |project|
     logger.debug project
 
-    # TODO handle API rate limiting
-    prj = root.rels[:repository].get :uri => project
+    # check if the project lives on github
+    if project['service'].eql? 'github'
+      prj = root.rels[:repository].get :uri => project
 
-    logger.debug prj.data.inspect
+      logger.debug prj.data.inspect
 
-    # and put their generated DOAP in the graph
-    graph << [RDF::URI(prj.data[:url]), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DOAP.Project]
-    graph << [RDF::URI(prj.data[:url]), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), SO['CreativeWork']]
-    graph << [RDF::URI(prj.data[:url]), DOAP['name'], prj.data[:name]]
-    graph << [RDF::URI(prj.data[:url]), DOAP['programming-language'], prj.data[:language]]
-    graph << [RDF::URI(prj.data[:url]), DOAP['homepage'], RDF::Resource(prj.data[:homepage])] unless prj.data[:homepage].to_s == ''
-    graph << [RDF::URI(prj.data[:url]), DOAP['description'], prj.data[:description]]
-    graph << [RDF::URI(prj.data[:url]), SO['sponsor'], RDF::URI(project['sponsor'])]
+      # and put their generated DOAP in the graph
+      graph << [RDF::URI(prj.data[:url]), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DOAP.Project]
+      graph << [RDF::URI(prj.data[:url]), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), SO['CreativeWork']]
+      graph << [RDF::URI(prj.data[:url]), DOAP['name'], prj.data[:name]]
+      graph << [RDF::URI(prj.data[:url]), DOAP['programming-language'], prj.data[:language]]
+      graph << [RDF::URI(prj.data[:url]), DOAP['homepage'], RDF::Resource(prj.data[:homepage])] unless prj.data[:homepage].to_s == ''
+      graph << [RDF::URI(prj.data[:url]), DOAP['description'], prj.data[:description]]
+      graph << [RDF::URI(prj.data[:url]), DOAP['created'], prj.data[:created_at]]
+      graph << [RDF::URI(prj.data[:url]), DOAP['repository'], prj.data[:git_url]]
+      graph << [RDF::URI(prj.data[:url]), SO['sponsor'], RDF::URI(project['sponsor'])]
 
-    # TODO created shortdesc category license repository
+      # TODO category license
 
-    # TODO evaluate forks so that we can discover :sameAs relations
+      # TODO analyse content of repo to guess the license
+      # guessing that blob/master/LICENSE exists is the first trivial thing...
 
-    # This is the part where our knowledge has to be added
-    graph << [RDF::URI('https://api.github.com/repos/kubernetes/kubernetes'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/docker/docker')]
+      # TODO evaluate forks so that we can discover :sameAs relations
 
-    graph << [RDF::URI('https://api.github.com/repos/openshift/origin'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/kubernetes/kubernetes')]
-    graph << [RDF::URI('https://api.github.com/repos/openshift/origin'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/coreos/etcd')]
+      # This is the part where our knowledge has to be added
+      graph << [RDF::URI('https://api.github.com/repos/kubernetes/kubernetes'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/docker/docker')]
 
-    # lets say what Red Hat OpenShift is
-    graph << [RDF::URI('https://www.openshift.com/'), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DOAP.Project]
-    graph << [RDF::URI('https://www.openshift.com/'), DOAP['name'], 'Red Hat OpenShift Container Platform']
-    graph << [RDF::URI('https://www.openshift.com/'), DOAP['programming-language'], 'Go']
-    graph << [RDF::URI('https://www.openshift.com/'), DOAP['homepage'], RDF::Resource('https://www.openshift.com/')]
-    graph << [RDF::URI('https://www.openshift.com/'), DOAP['description'], 'OpenShift is Red Hat\'s Platform-as-a-Service (PaaS) that allows developers to quickly develop, host, and scale applications in a cloud environment. With OpenShift you have a choice of offerings, including online, on-premise, and open source project options.']
-    graph << [RDF::URI('https://www.openshift.com/'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/openshift/origin')]
+      graph << [RDF::URI('https://api.github.com/repos/openshift/origin'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/kubernetes/kubernetes')]
+      graph << [RDF::URI('https://api.github.com/repos/openshift/origin'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/coreos/etcd')]
 
-  end
+      # lets say what Red Hat OpenShift is
+      graph << [RDF::URI('https://www.openshift.com/'), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), DOAP.Project]
+      graph << [RDF::URI('https://www.openshift.com/'), DOAP['name'], 'Red Hat OpenShift Container Platform']
+      graph << [RDF::URI('https://www.openshift.com/'), DOAP['programming-language'], 'Go']
+      graph << [RDF::URI('https://www.openshift.com/'), DOAP['homepage'], RDF::Resource('https://www.openshift.com/')]
+      graph << [RDF::URI('https://www.openshift.com/'), DOAP['description'], 'OpenShift is Red Hat\'s Platform-as-a-Service (PaaS) that allows developers to quickly develop, host, and scale applications in a cloud environment. With OpenShift you have a choice of offerings, including online, on-premise, and open source project options.']
+      graph << [RDF::URI('https://www.openshift.com/'), XKOS['hasPart'], RDF::URI('https://api.github.com/repos/openshift/origin')]
 
+    else # repo is not hosted on github
+      logger.warn "UNIMPLEMENTED #{project.inspect} is not hosted on github.com"
+    end
+  end #   upstream_projects.each do |project|
 end
 
-# now we create all the Sponsoring Organizations
+# now we create all the sponsoring Organizations
 upstream_projects.each do |project|
   graph << [RDF::URI(project['sponsor']), RDF::URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), SO['Organization']]
 
